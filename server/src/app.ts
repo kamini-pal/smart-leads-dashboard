@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import errorHandler from './middleware/errorHandler';
+import authRoutes from './routes/authRoutes';
 
 /**
  * app.ts — Express application setup.
@@ -58,9 +59,9 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
-// API routes will be registered here in future phases:
-// app.use('/api/auth', authRoutes);
-// app.use('/api/leads', leadRoutes);
+// API routes
+app.use('/api/auth', authRoutes);
+// app.use('/api/leads', leadRoutes); // Coming in Phase 6
 
 // ────────────────────────────────────────────────────────────
 // ERROR HANDLING (must be AFTER all routes)
