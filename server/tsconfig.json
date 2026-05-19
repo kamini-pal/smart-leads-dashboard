@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    /* Language & Environment */
+    "target": "ES2020",
+    "module": "node16",
+    "lib": ["ES2020"],
+
+    /* Output */
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    /* Strict Type Checking — these catch bugs before they happen */
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+
+    /* Module Resolution */
+    "moduleResolution": "node16",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    /* Code Quality */
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
