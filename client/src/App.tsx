@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from '@/contexts/AuthContext';
 import ProtectedRoute from '@/routes/ProtectedRoute';
+import GuestRoute from '@/routes/GuestRoute';
 import DashboardLayout from '@/layouts/DashboardLayout';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
@@ -35,9 +36,11 @@ const App = () => {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          {/* Guest Routes — redirect to dashboard if already logged in */}
+          <Route element={<GuestRoute />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+          </Route>
 
           {/* Protected Routes — wrapped in DashboardLayout */}
           <Route element={<ProtectedRoute />}>
