@@ -16,6 +16,7 @@ A full-stack **lead management CRM** built with the MERN stack and TypeScript. M
 
 ### Lead Management
 - Full CRUD for leads
+- View lead details in a read-only modal
 - Filter by status (New, Contacted, Qualified, Lost)
 - Filter by source (Website, Instagram, Referral)
 - Debounced search by name or email
@@ -221,6 +222,10 @@ docker compose logs -f backend   # View API logs
 
 ---
 
+## API Documentation
+
+Full endpoint documentation with sample requests and responses: **[API_DOCS.md](./API_DOCS.md)**
+
 ## API Overview
 
 Base URL (local dev): `http://localhost:5000/api`  
@@ -309,7 +314,7 @@ This project was built in phases:
 
 ---
 
-## Deployment Preparation
+## Deployment
 
 This repo is ready for deployment with minor configuration:
 
@@ -318,6 +323,27 @@ This repo is ready for deployment with minor configuration:
 3. Build the client with `VITE_API_URL` pointing to your API (or use Nginx proxy like Docker).
 4. Run the server with `NODE_ENV=production`.
 5. Optionally deploy using the included `docker-compose.yml` on any VPS with Docker.
+
+**Suggested platforms:** Render, Railway, Vercel (frontend), AWS EC2, or any VPS with Docker.
+
+---
+
+## Future Improvements
+
+- Add optional lead fields (phone, company, notes) to the schema
+- Email notifications for new leads
+- Activity log / audit trail per lead
+- Dark mode theme toggle
+- Admin user management panel
+
+---
+
+## Author
+
+**Kamini Pal**
+
+- GitHub: [kamini-pal/smart-leads-dashboard](https://github.com/kamini-pal/smart-leads-dashboard)
+- Project: Smart Leads Dashboard — MERN stack internship assignment
 
 ---
 

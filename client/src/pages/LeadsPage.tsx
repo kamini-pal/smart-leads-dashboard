@@ -10,6 +10,7 @@ import LeadTable from '@/components/leads/LeadTable';
 import LeadCard from '@/components/leads/LeadCard';
 import LeadFormModal from '@/components/modals/LeadFormModal';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
+import ViewLeadModal from '@/components/modals/ViewLeadModal';
 import LeadsTableSkeleton from '@/components/ui/LeadsTableSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
@@ -54,6 +55,7 @@ const LeadsPage = () => {
 
   // ── Modal State ──
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -170,6 +172,11 @@ const LeadsPage = () => {
     setIsFormModalOpen(true);
   };
 
+  const openViewModal = (lead: Lead) => {
+    setSelectedLead(lead);
+    setIsViewModalOpen(true);
+  };
+
   const openEditModal = (lead: Lead) => {
     setSelectedLead(lead);
     setIsFormModalOpen(true);
@@ -228,6 +235,7 @@ const LeadsPage = () => {
           <LeadTable
             leads={leads}
             isAdmin={isAdmin}
+            onView={openViewModal}
             onEdit={openEditModal}
             onDelete={openDeleteModal}
           />
@@ -239,6 +247,7 @@ const LeadsPage = () => {
                 key={lead._id}
                 lead={lead}
                 isAdmin={isAdmin}
+                onView={openViewModal}
                 onEdit={openEditModal}
                 onDelete={openDeleteModal}
               />
@@ -251,6 +260,12 @@ const LeadsPage = () => {
       )}
 
       {/* Modals */}
+      <ViewLeadModal
+        isOpen={isViewModalOpen}
+        onClose={() => { setIsViewModalOpen(false); setSelectedLead(null); }}
+        lead={selectedLead}
+      />
+
       <LeadFormModal
         isOpen={isFormModalOpen}
         onClose={() => { setIsFormModalOpen(false); setSelectedLead(null); }}

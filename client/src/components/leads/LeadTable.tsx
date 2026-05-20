@@ -1,10 +1,11 @@
-import { Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import type { Lead } from '@/types';
 import { statusStyles, sourceStyles, statusLabels, sourceLabels, formatDate } from '@/utils/helpers';
 
 interface LeadTableProps {
   leads: Lead[];
   isAdmin: boolean;
+  onView: (lead: Lead) => void;
   onEdit: (lead: Lead) => void;
   onDelete: (lead: Lead) => void;
 }
@@ -13,7 +14,7 @@ interface LeadTableProps {
  * LeadTable — desktop table view for leads.
  * Hidden on mobile, replaced by LeadCard.
  */
-const LeadTable = ({ leads, isAdmin, onEdit, onDelete }: LeadTableProps) => (
+const LeadTable = ({ leads, isAdmin, onView, onEdit, onDelete }: LeadTableProps) => (
   <div className="hidden overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-card md:block">
     <table className="w-full">
       <thead>
@@ -50,6 +51,13 @@ const LeadTable = ({ leads, isAdmin, onEdit, onDelete }: LeadTableProps) => (
             </td>
             <td className="px-6 py-4">
               <div className="flex items-center justify-end gap-1">
+                <button
+                  onClick={() => onView(lead)}
+                  className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                  title="View lead"
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
                 <button
                   onClick={() => onEdit(lead)}
                   className="rounded-lg p-2 text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"

@@ -1,10 +1,11 @@
-import { Pencil, Trash2, Mail, Calendar } from 'lucide-react';
+import { Eye, Pencil, Trash2, Mail, Calendar } from 'lucide-react';
 import type { Lead } from '@/types';
 import { statusStyles, sourceStyles, statusLabels, sourceLabels, formatDate } from '@/utils/helpers';
 
 interface LeadCardProps {
   lead: Lead;
   isAdmin: boolean;
+  onView: (lead: Lead) => void;
   onEdit: (lead: Lead) => void;
   onDelete: (lead: Lead) => void;
 }
@@ -13,7 +14,7 @@ interface LeadCardProps {
  * LeadCard — mobile card view for a single lead.
  * Shown on small screens, hidden on md+ where LeadTable takes over.
  */
-const LeadCard = ({ lead, isAdmin, onEdit, onDelete }: LeadCardProps) => (
+const LeadCard = ({ lead, isAdmin, onView, onEdit, onDelete }: LeadCardProps) => (
   <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-card transition-all duration-300 hover:shadow-card-hover md:hidden">
     {/* Header — Name + Badges */}
     <div className="flex items-start justify-between">
@@ -25,6 +26,13 @@ const LeadCard = ({ lead, isAdmin, onEdit, onDelete }: LeadCardProps) => (
         </div>
       </div>
       <div className="ml-3 flex items-center gap-1">
+        <button
+          onClick={() => onView(lead)}
+          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+          title="View lead"
+        >
+          <Eye className="h-4 w-4" />
+        </button>
         <button
           onClick={() => onEdit(lead)}
           className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-primary-50 hover:text-primary-600"
