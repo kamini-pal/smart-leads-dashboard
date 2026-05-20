@@ -111,3 +111,57 @@ export interface AuthResponse {
   };
   token: string;
 }
+
+// ────────────────────────────────────────────────────────────
+// LEAD TYPES
+// ────────────────────────────────────────────────────────────
+
+/**
+ * Lead status — tracks where the lead is in the sales pipeline.
+ */
+export enum LeadStatus {
+  NEW = 'new',
+  CONTACTED = 'contacted',
+  QUALIFIED = 'qualified',
+  LOST = 'lost',
+}
+
+/**
+ * Lead source — where the lead came from.
+ */
+export enum LeadSource {
+  WEBSITE = 'website',
+  INSTAGRAM = 'instagram',
+  REFERRAL = 'referral',
+}
+
+/**
+ * Lead document interface — represents a Lead in MongoDB.
+ */
+export interface ILead {
+  _id: string;
+  name: string;
+  email: string;
+  status: LeadStatus;
+  source: LeadSource;
+  createdBy: string; // User ID who created this lead
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Query parameters for GET /api/leads.
+ *
+ * WHY a separate interface?
+ * Express query params are all strings. This interface defines the
+ * expected shape so we can validate and parse them properly.
+ * All fields are optional because filters are combinable.
+ */
+export interface LeadQueryParams {
+  status?: LeadStatus;
+  source?: LeadSource;
+  search?: string;       // Search by name or email
+  sort?: 'latest' | 'oldest';
+  page?: string;         // String because query params are always strings
+  limit?: string;
+}
