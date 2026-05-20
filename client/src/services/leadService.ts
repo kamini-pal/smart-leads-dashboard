@@ -1,5 +1,12 @@
 import api from './api';
-import type { Lead, LeadFormData, LeadFilters, ApiResponse, PaginatedResponse } from '@/types';
+import type {
+  Lead,
+  LeadFormData,
+  LeadFilters,
+  ApiResponse,
+  PaginatedResponse,
+  DashboardStats,
+} from '@/types';
 
 /**
  * Lead Service — all lead-related API calls.
@@ -21,6 +28,12 @@ export const leadService = {
     if (filters.limit) params.append('limit', String(filters.limit));
 
     const { data } = await api.get<PaginatedResponse<Lead>>(`/leads?${params.toString()}`);
+    return data;
+  },
+
+  /** Fetch dashboard overview stats */
+  getStats: async (): Promise<ApiResponse<DashboardStats>> => {
+    const { data } = await api.get<ApiResponse<DashboardStats>>('/leads/stats');
     return data;
   },
 

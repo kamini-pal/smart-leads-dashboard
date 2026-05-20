@@ -97,3 +97,25 @@ export interface LeadFilters {
   page?: number;
   limit?: number;
 }
+
+// ── Dashboard Types ──
+
+export interface LeadStatusCounts {
+  new: number;
+  contacted: number;
+  qualified: number;
+  lost: number;
+}
+
+export interface LeadSourceCounts {
+  website: number;
+  instagram: number;
+  referral: number;
+}
+
+export interface DashboardStats {
+  total: number;
+  byStatus: LeadStatusCounts;
+  bySource: LeadSourceCounts;
+  recentLeads: Lead[];
+}

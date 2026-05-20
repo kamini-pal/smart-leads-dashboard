@@ -173,6 +173,63 @@ export const getLeads = async (req: Request, res: Response, next: NextFunction):
 };
 
 // ────────────────────────────────────────────────────────────
+// GET /api/leads/stats — Dashboard overview statistics
+// ────────────────────────────────────────────────────────────
+export const getLeadStats = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const [total, statusAgg, sourceAgg, recentLeads] = await Promise.all([
+      Lead.countDocuments(),
+      Lead.aggregate<{ _id: LeadStatus; count: number }>([
+        { $group: { _id: '$status', count: { $sum: 1 } } },
+      ]),
+      Lead.aggregate<{ _id: LeadSource; count: number }>([
+        { $group: { _id: '$source', count: { $sum: 1 } } },
+      ]),
+      Lead.find()
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .populate('createdBy', 'name email'),
+    ]);
+
+    const byStatus = {
+      new: 0,
+      contacted: 0,
+      qualified: 0,
+      lost: 0,
+    };
+    statusAgg.forEach(({ _id, count }) => {
+      if (_id in byStatus) {
+        byStatus[_id as keyof typeof byStatus] = count;
+      }
+    });
+
+    const bySource = {
+      website: 0,
+      instagram: 0,
+      referral: 0,
+    };
+    sourceAgg.forEach(({ _id, count }) => {
+      if (_id in bySource) {
+        bySource[_id as keyof typeof bySource] = count;
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Lead stats fetched successfully',
+      data: {
+        total,
+        byStatus,
+        bySource,
+        recentLeads,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ────────────────────────────────────────────────────────────
 // GET /api/leads/:id — Get a single lead by ID
 // ────────────────────────────────────────────────────────────
 export const getLeadById = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createLead,
   getLeads,
+  getLeadStats,
   getLeadById,
   updateLead,
   deleteLead,
@@ -63,6 +64,12 @@ router.get(
   '/',
   authorizeRoles(UserRole.ADMIN, UserRole.SALES),
   getLeads
+);
+
+router.get(
+  '/stats',
+  authorizeRoles(UserRole.ADMIN, UserRole.SALES),
+  getLeadStats
 );
 
 router.get(

@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import useModalLock from '@/hooks/useModalLock';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -65,6 +66,8 @@ const LeadFormModal = ({ isOpen, onClose, onSubmit, lead, isSubmitting }: LeadFo
     }
   }, [isOpen, lead, reset]);
 
+  useModalLock(isOpen, onClose, !isSubmitting);
+
   if (!isOpen) return null;
 
   const handleFormSubmit = async (data: LeadFormValues) => {
@@ -72,20 +75,32 @@ const LeadFormModal = ({ isOpen, onClose, onSubmit, lead, isSubmitting }: LeadFo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lead-form-title"
+    >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        onClick={() => !isSubmitting && onClose()}
+        aria-hidden="true"
+      />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">
+          <h2 id="lead-form-title" className="text-lg font-bold text-slate-900">
             {isEditMode ? 'Edit Lead' : 'Add New Lead'}
           </h2>
           <button
+            type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
+            disabled={isSubmitting}
+            aria-label="Close modal"
+            className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <X className="h-5 w-5" />
           </button>
@@ -179,7 +194,8 @@ const LeadFormModal = ({ isOpen, onClose, onSubmit, lead, isSubmitting }: LeadFo
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              disabled={isSubmitting}
+              className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,7 +10,7 @@ import LeadTable from '@/components/leads/LeadTable';
 import LeadCard from '@/components/leads/LeadCard';
 import LeadFormModal from '@/components/modals/LeadFormModal';
 import ConfirmDeleteModal from '@/components/modals/ConfirmDeleteModal';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LeadsTableSkeleton from '@/components/ui/LeadsTableSkeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import type { Lead, LeadFormData, LeadFilters, PaginationMeta } from '@/types';
@@ -32,6 +33,8 @@ import type { Lead, LeadFormData, LeadFilters, PaginationMeta } from '@/types';
  */
 const LeadsPage = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const isAdmin = user?.role === 'admin';
 
   // ── Data State ──
@@ -78,6 +81,16 @@ const LeadsPage = () => {
   useEffect(() => {
     fetchLeads();
   }, [fetchLeads]);
+
+  // Open create modal when navigated from dashboard "Add lead"
+  useEffect(() => {
+    const state = location.state as { openCreate?: boolean } | null;
+    if (state?.openCreate) {
+      setSelectedLead(null);
+      setIsFormModalOpen(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, location.pathname, navigate]);
 
   // ── Filter Handlers ──
   const handleFilterChange = (newFilters: Partial<LeadFilters>) => {
@@ -188,7 +201,7 @@ const LeadsPage = () => {
 
       {/* Content Area */}
       {isLoading ? (
-        <LoadingSpinner message="Loading leads..." />
+        <LeadsTableSkeleton />
       ) : leads.length === 0 ? (
         <EmptyState
           icon={<Users className="h-12 w-12" />}
