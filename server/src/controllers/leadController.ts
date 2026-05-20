@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import Lead from '../models/Lead';
 import { ApiError, LeadQueryParams, LeadStatus, LeadSource } from '../types';
+import generateCsv, { leadCsvColumns } from '../utils/csvExport';
 
 /**
  * Lead Controller — handles all Lead CRUD operations + filtering + pagination.
@@ -267,6 +268,60 @@ export const deleteLead = async (req: Request, res: Response, next: NextFunction
       message: 'Lead deleted successfully',
       data: null,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// GET /api/leads/export/csv — Export leads as CSV file
+// ────────────────────────────────────────────────────────────
+export const exportLeadsCsv = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { status, source, search } = req.query as LeadQueryParams;
+
+    /**
+     * Build the SAME filter as getLeads.
+     * This way, if the user is viewing filtered leads on the dashboard,
+     * the CSV export will contain the SAME filtered results.
+     *
+     * Example: User filters by status=qualified, clicks "Export CSV"
+     * → Only qualified leads appear in the downloaded file.
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filter: Record<string, any> = {};
+
+    if (status && Object.values(LeadStatus).includes(status)) {
+      filter.status = status;
+    }
+    if (source && Object.values(LeadSource).includes(source)) {
+      filter.source = source;
+    }
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Fetch ALL matching leads (no pagination — export everything)
+    const leads = await Lead.find(filter)
+      .sort({ createdAt: -1 })
+      .lean(); // .lean() returns plain JS objects (faster, no Mongoose overhead)
+
+    // Generate CSV string
+    const csv = generateCsv(leads, leadCsvColumns);
+
+    /**
+     * Set response headers to trigger a file download.
+     *
+     * Content-Type: text/csv → tells the browser "this is a CSV file"
+     * Content-Disposition: attachment → triggers download instead of display
+     * filename= → the name of the downloaded file
+     */
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=leads-export.csv');
+    res.status(200).send(csv);
   } catch (error) {
     next(error);
   }

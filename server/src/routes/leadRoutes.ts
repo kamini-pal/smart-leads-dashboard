@@ -5,6 +5,7 @@ import {
   getLeadById,
   updateLead,
   deleteLead,
+  exportLeadsCsv,
 } from '../controllers/leadController';
 import {
   createLeadValidation,
@@ -12,21 +13,30 @@ import {
   idParamValidation,
 } from '../validators/leadValidators';
 import authMiddleware from '../middleware/authMiddleware';
+import authorizeRoles from '../middleware/roleMiddleware';
+import { UserRole } from '../types';
 
 /**
- * Lead Routes — ALL routes are protected (require JWT).
+ * Lead Routes — ALL routes are protected (require JWT + role check).
  *
- * The authMiddleware is applied to the ENTIRE router using router.use().
- * This means every route below automatically requires authentication.
- * No need to add authMiddleware to each individual route.
+ * MIDDLEWARE EXECUTION ORDER for each request:
+ * ┌──────────────────────────────────────────────────────────┐
+ * │ 1. authMiddleware     → "Is the user logged in?"        │
+ * │ 2. authorizeRoles()   → "Does the user have permission?"│
+ * │ 3. validation         → "Is the request data valid?"    │
+ * │ 4. controller         → "Execute the business logic"    │
+ * └──────────────────────────────────────────────────────────┘
  *
- * ROUTE → MIDDLEWARE → CONTROLLER FLOW:
- *
- * POST   /api/leads      → auth → validate body → createLead
- * GET    /api/leads       → auth → getLeads (with query params)
- * GET    /api/leads/:id   → auth → validate :id  → getLeadById
- * PUT    /api/leads/:id   → auth → validate :id + body → updateLead
- * DELETE /api/leads/:id   → auth → validate :id  → deleteLead
+ * RBAC RULES:
+ * ┌─────────────────┬───────────┬────────────┐
+ * │ Action          │ Admin     │ Sales      │
+ * ├─────────────────┼───────────┼────────────┤
+ * │ Create Lead     │ ✅        │ ✅         │
+ * │ View Leads      │ ✅        │ ✅         │
+ * │ Update Lead     │ ✅        │ ✅         │
+ * │ Delete Lead     │ ✅        │ ❌         │
+ * │ Export CSV      │ ✅        │ ✅         │
+ * └─────────────────┴───────────┴────────────┘
  */
 
 const router = Router();
@@ -34,11 +44,47 @@ const router = Router();
 // Apply auth middleware to ALL lead routes
 router.use(authMiddleware);
 
+// CSV export — MUST be before /:id routes (otherwise "export" gets treated as an :id)
+router.get(
+  '/export/csv',
+  authorizeRoles(UserRole.ADMIN, UserRole.SALES),
+  exportLeadsCsv
+);
+
 // Lead CRUD routes
-router.post('/', createLeadValidation, createLead);
-router.get('/', getLeads);
-router.get('/:id', idParamValidation, getLeadById);
-router.put('/:id', [...idParamValidation, ...updateLeadValidation], updateLead);
-router.delete('/:id', idParamValidation, deleteLead);
+router.post(
+  '/',
+  authorizeRoles(UserRole.ADMIN, UserRole.SALES),
+  createLeadValidation,
+  createLead
+);
+
+router.get(
+  '/',
+  authorizeRoles(UserRole.ADMIN, UserRole.SALES),
+  getLeads
+);
+
+router.get(
+  '/:id',
+  authorizeRoles(UserRole.ADMIN, UserRole.SALES),
+  idParamValidation,
+  getLeadById
+);
+
+router.put(
+  '/:id',
+  authorizeRoles(UserRole.ADMIN, UserRole.SALES),
+  [...idParamValidation, ...updateLeadValidation],
+  updateLead
+);
+
+// DELETE — Admin only!
+router.delete(
+  '/:id',
+  authorizeRoles(UserRole.ADMIN),  // ← Only admins can delete
+  idParamValidation,
+  deleteLead
+);
 
 export default router;
