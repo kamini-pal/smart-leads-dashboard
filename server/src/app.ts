@@ -34,8 +34,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'https://smart-leads-dashboard-one-indol.vercel.app',
-    process.env.CLIENT_URL || '',
-  ].filter(Boolean),
+  ],
   credentials: true,
 }));
 
