@@ -24,18 +24,21 @@ const app = express();
 // MIDDLEWARE (runs on EVERY request, in this order)
 // ────────────────────────────────────────────────────────────
 
-// Security headers — adds headers like X-Content-Type-Options, X-Frame-Options
-// Protects against common web vulnerabilities
-app.use(helmet());
-
 // CORS — allows requests from your React frontend (different port/domain)
 // Without this, the browser blocks cross-origin requests
+// MUST be before helmet() so CORS headers are set first
 app.use(cors({
   origin: [
     'http://localhost:5173',
     'https://smart-leads-dashboard-one-indol.vercel.app',
   ],
   credentials: true,
+}));
+
+// Security headers — adds headers like X-Content-Type-Options, X-Frame-Options
+// crossOriginResourcePolicy set to 'cross-origin' to work with CORS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
 // JSON body parser — converts request body from raw JSON string to JavaScript object
